@@ -59,15 +59,14 @@ export default function StudentPinPage() {
         return;
       }
 
-      const artifactData = await apiService.getArtifactById(session.artifactId);
-      if (!artifactData) {
+      if (!session.code) {
         setError('No se pudo cargar el artefacto de esta sesión.');
         setLoading(false);
         return;
       }
 
       setActiveSession(session);
-      setArtifact(artifactData);
+      setArtifact({ title: 'Sesión Interactiva', code: session.code });
 
       // Connect WebSocket for real-time alerts
       wsService.connect(pin, 'STUDENT');

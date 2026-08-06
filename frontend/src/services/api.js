@@ -264,7 +264,7 @@ export const apiService = {
   },
 
   // Sesiones Interactivas y PIN (4 dígitos)
-  createSession: async (artifactId) => {
+  createSession: async (artifactId, code) => {
     try {
       const token = localStorage.getItem('inejoma_admin_token');
       const res = await fetch(`${API_BASE}/api/sessions`, {
@@ -273,7 +273,7 @@ export const apiService = {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ artifactId }),
+        body: JSON.stringify({ artifactId, code: code || '' }),
       });
       if (res.ok) return await res.json();
     } catch (e) {}
@@ -288,6 +288,7 @@ export const apiService = {
     const newSession = {
       pin,
       artifactId,
+      code: code || '',
       createdAt: new Date().toISOString(),
       status: 'ACTIVE',
       connectedStudents: 0,

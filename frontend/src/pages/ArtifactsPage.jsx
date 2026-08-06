@@ -20,7 +20,7 @@ export default function ArtifactsPage({ onLogout }) {
   });
 
   useEffect(() => {
-    loadData();
+    loadData().then(() => syncLocalToBackend());
   }, []);
 
   const loadData = async () => {
@@ -44,8 +44,33 @@ export default function ArtifactsPage({ onLogout }) {
     }
   };
 
+  const syncLocalToBackend = async () => {
+    try {
+      const raw = localStorage.getItem('inejoma_v2_artifacts');
+      if (!raw) return;
+      const localArtifacts = JSON.parse(raw);
+      if (!Array.isArray(localArtifacts) || localArtifacts.length === 0) return;
+
+      const unsynced = localArtifacts.filter((a) =>
+        typeof a.id === 'string' && a.id.startsWith('art-')
+      );
+      if (unsynced.length === 0) return;
+
+      for (const artifact of unsynced) {
+        const saved = await apiService.saveArtifact(artifact);
+        if (saved && saved.id) {
+          const updated = localArtifacts.filter((a) => a.id !== artifact.id);
+          localStorage.setItem('inejoma_v2_artifacts', JSON.stringify(updated));
+          loadData();
+        }
+      }
+    } catch (e) {
+      console.warn('Error sincronizando artefactos locales:', e);
+    }
+  };
+
   const handlePlayArtifact = async (artifact) => {
-    const session = await apiService.createSession(artifact.id);
+    const session = await apiService.createSession(artifact.id, artifact.code);
     window.open(`/admin/player/${artifact.id}?pin=${session.pin}`, '_blank');
   };
 

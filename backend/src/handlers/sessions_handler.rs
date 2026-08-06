@@ -16,13 +16,15 @@ pub async fn create_session(
     State(session_manager): State<SessionManager>,
     Json(payload): Json<CreateSessionDto>,
 ) -> impl IntoResponse {
-    let pin = session_manager.create_session(payload.artifact_id);
+    let code = payload.code.clone();
+    let pin = session_manager.create_session(payload.artifact_id, code);
 
     (
         StatusCode::CREATED,
         Json(SessionResponse {
             pin,
             artifact_id: payload.artifact_id,
+            code: payload.code,
             status: "ACTIVE".to_string(),
         }),
     )

@@ -90,6 +90,7 @@ pub struct AuthResponse {
 pub struct SessionResponse {
     pub pin: String,
     pub artifact_id: Uuid,
+    pub code: String,
     pub status: String,
 }
 
@@ -97,4 +98,5 @@ pub struct SessionResponse {
 #[serde(rename_all = "camelCase")]
 pub struct CreateSessionDto {
     pub artifact_id: Uuid,
+    pub code: String,
 }

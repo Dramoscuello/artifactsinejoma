@@ -19,12 +19,14 @@ use uuid::Uuid;
 pub struct SessionState {
     pub pin: String,
     pub artifact_id: Uuid,
+    pub code: String,
     pub status: String,
 }
 
 pub struct ActiveRoom {
     pub pin: String,
     pub artifact_id: Uuid,
+    pub code: String,
     pub tx: broadcast::Sender<String>,
     pub student_count: usize,
 }
@@ -41,7 +43,7 @@ impl SessionManager {
         }
     }
 
-    pub fn create_session(&self, artifact_id: Uuid) -> String {
+    pub fn create_session(&self, artifact_id: Uuid, code: String) -> String {
         let mut rooms = self.rooms.lock().unwrap();
         let mut rng = rand::thread_rng();
 
@@ -60,6 +62,7 @@ impl SessionManager {
             ActiveRoom {
                 pin: pin.clone(),
                 artifact_id,
+                code: code.clone(),
                 tx,
                 student_count: 0,
             },
@@ -74,6 +77,7 @@ impl SessionManager {
         rooms.get(pin).map(|room| SessionState {
             pin: room.pin.clone(),
             artifact_id: room.artifact_id,
+            code: room.code.clone(),
             status: "ACTIVE".to_string(),
         })
     }
