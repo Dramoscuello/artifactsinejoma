@@ -6,13 +6,9 @@ WORKDIR /usr/src/app
 # Install build dependencies
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 COPY src ./src
 COPY migrations ./migrations
-
-# SQLx offline preparation mode
-ENV SQLX_OFFLINE=true
-RUN cargo check --offline || true
 
 # Build release binary
 RUN cargo build --release
@@ -25,7 +21,7 @@ RUN apt-get update && apt-get install -y ca-certificates libssl1.1 && rm -rf /va
 WORKDIR /app
 
 COPY --from=builder /usr/src/app/target/release/backend /app/backend
-COPY migrations /app/migrations
+COPY --from=builder /usr/src/app/migrations /app/migrations
 
 EXPOSE 8000
 
