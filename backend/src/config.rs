@@ -15,7 +15,8 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub fn from_env() -> Self {
-        dotenvy::dotenv().ok();
+        // Try explicit path first (Docker volume mount), then default search
+        let _ = dotenvy::from_filename("/app/.env").or_else(|_| dotenvy::dotenv());
 
         Self {
             port: env::var("PORT")

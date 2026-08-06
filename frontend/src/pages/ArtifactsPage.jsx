@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import ArtifactSandbox from '../components/ArtifactSandbox';
+import ConfirmModal from '../components/ConfirmModal';
 import { apiService } from '../services/api';
 
 export default function ArtifactsPage({ onLogout }) {
@@ -18,6 +19,8 @@ export default function ArtifactsPage({ onLogout }) {
     subjectId: '',
     code: '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: sans-serif; text-align: center; padding: 2rem; }\n  </style>\n</head>\n<body>\n  <h1>¡Hola Artefacto!</h1>\n</body>\n</html>'
   });
+
+  const [confirmModal, setConfirmModal] = useState({ open: false, message: '', onConfirm: null });
 
   useEffect(() => {
     loadData().then(() => syncLocalToBackend());
@@ -82,10 +85,17 @@ export default function ArtifactsPage({ onLogout }) {
   };
 
   const handleDeleteArtifact = async (id) => {
-    if (confirm('¿Estás seguro de eliminar este artefacto?')) {
-      await apiService.deleteArtifact(id);
-      loadData();
-    }
+    setConfirmModal({
+      open: true,
+      title: 'Eliminar Artefacto',
+      message: '¿Estás seguro de eliminar este artefacto? Esta acción no se puede deshacer.',
+      variant: 'danger',
+      onConfirm: async () => {
+        await apiService.deleteArtifact(id);
+        setConfirmModal({ open: false });
+        loadData();
+      },
+    });
   };
 
   return (
@@ -332,6 +342,15 @@ export default function ArtifactsPage({ onLogout }) {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ open: false })}
+      />
     </div>
   );
 }

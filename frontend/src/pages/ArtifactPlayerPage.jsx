@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { wsService } from '../services/websocket';
 import ArtifactSandbox from '../components/ArtifactSandbox';
+import ConfirmModal from '../components/ConfirmModal';
 
 export default function ArtifactPlayerPage() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function ArtifactPlayerPage() {
   const [studentCount, setStudentCount] = useState(0);
   const [isSessionActive, setIsSessionActive] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState({ open: false });
 
   useEffect(() => {
     loadArtifactAndSession();
@@ -51,11 +53,19 @@ export default function ArtifactPlayerPage() {
   };
 
   const handleEndSession = async () => {
-    if (confirm('¿Deseas finalizar la sesión? El PIN morirá y los alumnos serán desconectados.')) {
-      await apiService.endSession(pin);
-      wsService.endSession(pin);
-      setIsSessionActive(false);
-    }
+    setConfirmModal({
+      open: true,
+      title: 'Finalizar Sesión',
+      message: '¿Deseas finalizar la sesión? El PIN expirará y todos los alumnos serán desconectados.',
+      variant: 'danger',
+      confirmLabel: 'Finalizar',
+      onConfirm: async () => {
+        await apiService.endSession(pin);
+        wsService.endSession(pin);
+        setConfirmModal({ open: false });
+        setIsSessionActive(false);
+      },
+    });
   };
 
   const handleReplay = async () => {
@@ -159,6 +169,16 @@ export default function ArtifactPlayerPage() {
           <ArtifactSandbox code={artifact?.code} title={artifact?.title} hideHeader={true} />
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        confirmLabel={confirmModal.confirmLabel}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ open: false })}
+      />
     </div>
   );
 }

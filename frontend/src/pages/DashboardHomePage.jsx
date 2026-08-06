@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import ConfirmModal from '../components/ConfirmModal';
 import { apiService } from '../services/api';
 
 export default function DashboardHomePage({ onLogout }) {
@@ -15,6 +16,9 @@ export default function DashboardHomePage({ onLogout }) {
 
   const [showSubjectModal, setShowSubjectModal] = useState(false);
   const [editingSubject, setEditingSubject] = useState({ name: '' });
+
+  // Confirm dialog state
+  const [confirmModal, setConfirmModal] = useState({ open: false, message: '', onConfirm: null });
 
   useEffect(() => {
     loadData();
@@ -46,10 +50,31 @@ export default function DashboardHomePage({ onLogout }) {
   };
 
   const handleDeleteGrade = async (id) => {
-    if (confirm('¿Deseas eliminar este grado?')) {
-      await apiService.deleteGrade(id);
-      loadData();
-    }
+    setConfirmModal({
+      open: true,
+      title: 'Eliminar Grado',
+      message: '¿Deseas eliminar este grado? Esta acción no se puede deshacer.',
+      variant: 'danger',
+      onConfirm: async () => {
+        await apiService.deleteGrade(id);
+        setConfirmModal({ open: false });
+        loadData();
+      },
+    });
+  };
+
+  const handleDeleteSubject = async (id) => {
+    setConfirmModal({
+      open: true,
+      title: 'Eliminar Asignatura',
+      message: '¿Deseas eliminar esta asignatura? Esta acción no se puede deshacer.',
+      variant: 'danger',
+      onConfirm: async () => {
+        await apiService.deleteSubject(id);
+        setConfirmModal({ open: false });
+        loadData();
+      },
+    });
   };
 
   // Subject Handlers
@@ -59,13 +84,6 @@ export default function DashboardHomePage({ onLogout }) {
     setShowSubjectModal(false);
     setEditingSubject({ name: '' });
     loadData();
-  };
-
-  const handleDeleteSubject = async (id) => {
-    if (confirm('¿Deseas eliminar esta asignatura?')) {
-      await apiService.deleteSubject(id);
-      loadData();
-    }
   };
 
   const tabs = [
@@ -339,6 +357,15 @@ export default function DashboardHomePage({ onLogout }) {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ open: false })}
+      />
     </div>
   );
 }
