@@ -69,7 +69,7 @@ export default function ArtifactPlayerPage() {
   };
 
   const handleReplay = async () => {
-    const newSession = await apiService.createSession(id);
+    const newSession = await apiService.createSession(id, artifact?.code);
     window.location.href = `/admin/player/${id}?pin=${newSession.pin}`;
   };
 
