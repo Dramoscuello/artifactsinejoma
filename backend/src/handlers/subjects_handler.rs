@@ -10,6 +10,7 @@ use axum::{
 };
 use serde_json::json;
 use sqlx::PgPool;
+use tracing::error;
 use uuid::Uuid;
 
 pub async fn list_subjects(
@@ -34,7 +35,10 @@ pub async fn create_subject(
     .bind(&payload.name)
     .fetch_one(&pool)
     .await
-    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() }))))?;
+    .map_err(|e| {
+        error!("Error creando asignatura: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": e.to_string() })))
+    })?;
 
     Ok((StatusCode::CREATED, Json(subject)))
 }

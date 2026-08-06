@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use uuid::Uuid;
 
+use crate::config::DEFAULT_JWT_SECRET;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
     pub sub: Uuid,
@@ -88,7 +90,7 @@ where
         }
 
         let secret = std::env::var("JWT_SECRET")
-            .unwrap_or_else(|_| "super_secret_jwt_key_change_in_production_2026".to_string());
+            .unwrap_or_else(|_| DEFAULT_JWT_SECRET.to_string());
 
         let token_data = decode::<Claims>(
             token,

@@ -13,7 +13,14 @@ export default function AdminLoginPage({ onLoginSuccess }) {
     setLoading(true);
     setError('');
 
-    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    let apiBase = import.meta.env.VITE_API_URL;
+    if (!apiBase) {
+      if (window.location.port === '5173') {
+        apiBase = `http://${window.location.hostname}:8000`;
+      } else {
+        apiBase = '';
+      }
+    }
 
     fetch(`${apiBase}/api/auth/login`, {
       method: 'POST',

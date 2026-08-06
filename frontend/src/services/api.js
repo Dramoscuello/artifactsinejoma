@@ -35,14 +35,19 @@ function setStored(key, value) {
 export const apiService = {
   // Grados
   getGrades: async () => {
+    let backendData = [];
     try {
       const res = await fetch(`${API_BASE}/api/grades`);
       if (res.ok) {
         const data = await res.json();
-        return Array.isArray(data) ? data : [];
+        backendData = Array.isArray(data) ? data : [];
       }
     } catch (e) {}
-    return getStored(STORAGE_KEYS.GRADES);
+
+    const localData = getStored(STORAGE_KEYS.GRADES);
+    const backendIds = new Set(backendData.map((g) => g.id));
+    const onlyLocal = localData.filter((g) => !backendIds.has(g.id));
+    return [...backendData, ...onlyLocal];
   },
   saveGrade: async (grade) => {
     try {
@@ -62,9 +67,16 @@ export const apiService = {
           description: grade.description || null,
         }),
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const saved = await res.json();
+        const grades = getStored(STORAGE_KEYS.GRADES);
+        setStored(STORAGE_KEYS.GRADES, grades.filter((g) => g.id !== grade.id));
+        return saved;
+      }
+      const errText = await res.text();
+      console.error(`Error HTTP al guardar grado (${res.status}):`, errText);
     } catch (e) {
-      console.error('Error al guardar grado:', e);
+      console.error('Error de red al guardar grado:', e);
     }
 
     const grades = getStored(STORAGE_KEYS.GRADES);
@@ -94,14 +106,19 @@ export const apiService = {
 
   // Asignaturas
   getSubjects: async () => {
+    let backendData = [];
     try {
       const res = await fetch(`${API_BASE}/api/subjects`);
       if (res.ok) {
         const data = await res.json();
-        return Array.isArray(data) ? data : [];
+        backendData = Array.isArray(data) ? data : [];
       }
     } catch (e) {}
-    return getStored(STORAGE_KEYS.SUBJECTS);
+
+    const localData = getStored(STORAGE_KEYS.SUBJECTS);
+    const backendIds = new Set(backendData.map((s) => s.id));
+    const onlyLocal = localData.filter((s) => !backendIds.has(s.id));
+    return [...backendData, ...onlyLocal];
   },
   saveSubject: async (subject) => {
     try {
@@ -120,9 +137,16 @@ export const apiService = {
           name: subject.name,
         }),
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const saved = await res.json();
+        const subjects = getStored(STORAGE_KEYS.SUBJECTS);
+        setStored(STORAGE_KEYS.SUBJECTS, subjects.filter((s) => s.id !== subject.id));
+        return saved;
+      }
+      const errText = await res.text();
+      console.error(`Error HTTP al guardar asignatura (${res.status}):`, errText);
     } catch (e) {
-      console.error('Error al guardar asignatura:', e);
+      console.error('Error de red al guardar asignatura:', e);
     }
 
     const subjects = getStored(STORAGE_KEYS.SUBJECTS);
@@ -152,14 +176,19 @@ export const apiService = {
 
   // Artefactos
   getArtifacts: async () => {
+    let backendData = [];
     try {
       const res = await fetch(`${API_BASE}/api/artifacts`);
       if (res.ok) {
         const data = await res.json();
-        return Array.isArray(data) ? data : [];
+        backendData = Array.isArray(data) ? data : [];
       }
     } catch (e) {}
-    return getStored(STORAGE_KEYS.ARTIFACTS);
+
+    const localData = getStored(STORAGE_KEYS.ARTIFACTS);
+    const backendIds = new Set(backendData.map((a) => a.id));
+    const onlyLocal = localData.filter((a) => !backendIds.has(a.id));
+    return [...backendData, ...onlyLocal];
   },
   getArtifactById: async (id) => {
     try {
@@ -193,7 +222,10 @@ export const apiService = {
       });
 
       if (res.ok) {
-        return await res.json();
+        const saved = await res.json();
+        const list = getStored(STORAGE_KEYS.ARTIFACTS);
+        setStored(STORAGE_KEYS.ARTIFACTS, list.filter((a) => a.id !== artifact.id));
+        return saved;
       } else {
         const errText = await res.text();
         console.error('Error HTTP al guardar artefacto:', res.status, errText);

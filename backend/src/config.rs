@@ -1,5 +1,7 @@
 use std::env;
 
+pub const DEFAULT_JWT_SECRET: &str = "super_secret_jwt_key_change_in_production_2026";
+
 #[derive(Clone, Debug)]
 pub struct AppConfig {
     pub port: u16,
@@ -25,7 +27,7 @@ impl AppConfig {
                 "postgres://postgres:postgres_password@localhost:5432/artifacts_inejoma".to_string()
             }),
             jwt_secret: env::var("JWT_SECRET")
-                .unwrap_or_else(|_| "super_secret_jwt_key_change_in_production".to_string()),
+                .unwrap_or_else(|_| DEFAULT_JWT_SECRET.to_string()),
             admin_email: env::var("ADMIN_EMAIL").unwrap_or_else(|_| "admin@inejoma.edu".to_string()),
             admin_password: env::var("ADMIN_PASSWORD").unwrap_or_else(|_| "AdminPassword123!".to_string()),
             admin_name: env::var("ADMIN_NAME").unwrap_or_else(|_| "Profesor Administrador".to_string()),

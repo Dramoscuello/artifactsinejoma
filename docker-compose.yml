@@ -25,14 +25,11 @@ services:
       dockerfile: Dockerfile
     container_name: inejoma_backend
     restart: always
+    env_file: .env
     environment:
       PORT: 8000
       HOST: 0.0.0.0
       DATABASE_URL: postgres://postgres:postgres_password@postgres:5432/artifacts_inejoma
-      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production_2026}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@inejoma.edu}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-AdminPassword123!}
-      ADMIN_NAME: ${ADMIN_NAME:-Profesor Administrador}
     ports:
       - "8000:8000"
     depends_on:

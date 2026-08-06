@@ -39,8 +39,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(p) => p,
         Err(e) => {
             tracing::warn!("⚠️ No se pudo conectar a PostgreSQL: {}. Continuando en modo sin BD...", e);
-            // In case DB is not available yet, create an offline pool or panic depending on requirement.
-            // For production / local dev with Postgres, panic with helpful message.
             return Err(e);
         }
     };
