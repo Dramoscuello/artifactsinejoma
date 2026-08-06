@@ -1,5 +1,5 @@
 # Multi-stage build for Rust Axum Backend
-FROM rust:1.76-slim-bullseye as builder
+FROM rust:latest as builder
 
 WORKDIR /usr/src/app
 
@@ -14,9 +14,9 @@ COPY migrations ./migrations
 RUN cargo build --release
 
 # Production runner image
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y ca-certificates libssl1.1 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates libssl3 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
