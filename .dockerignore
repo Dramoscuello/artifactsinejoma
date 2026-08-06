@@ -1,0 +1,24 @@
+# Version control & IDEs
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+.DS_Store
+
+# Local Rust build cache
+backend/target/
+**/target/
+
+# Local Node build & dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Local environment variables
+.env
+*.log
+
+# Persistent volumes & Docs
+postgres_data/
+README.md
